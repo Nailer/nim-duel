@@ -13,6 +13,7 @@ export function DuelRoom() {
   const [connecting, setConnecting] = useState(false)
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const fetchDuel = useCallback(async () => {
     if (!id)
@@ -100,6 +101,32 @@ export function DuelRoom() {
         .single()
       if (resolved)
         setDuel(resolved as Duel)
+    }
+  }
+
+  async function shareLink() {
+    const url = window.location.href
+    const shareData = {
+      title: 'NIM Duel',
+      text: `${duel?.creator_name || 'A challenger'} staked ${duel?.stake_amount} NIM. Think you're faster?`,
+      url,
+    }
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+        return
+      }
+      catch {
+        // user cancelled the share sheet, or it's unsupported here — fall through to copy
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+    catch {
+      setError('Could not copy automatically — select the link below and copy it manually.')
     }
   }
 
@@ -211,7 +238,11 @@ export function DuelRoom() {
           {duel.creator_reaction_ms}
           ms. Share this link:
         </p>
+        {error && <p className="error">{error}</p>}
         <input className="share-link" readOnly value={window.location.href} onFocus={e => e.currentTarget.select()} />
+        <button type="button" className="primary-btn" onClick={shareLink}>
+          {copied ? 'Copied!' : 'Copy / Share Link'}
+        </button>
       </div>
     )
   }
