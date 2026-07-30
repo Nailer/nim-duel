@@ -37,6 +37,13 @@ body {
   margin: 0 auto;
 }
 
+.logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 20px;
+  margin-bottom: 4px;
+}
+
 .title {
   font-size: 2rem;
   font-weight: 800;

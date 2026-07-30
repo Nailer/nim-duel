@@ -47,6 +47,7 @@ export function Home() {
 
   return (
     <div className="screen">
+      <img src="/brand/logo.svg" alt="NIM Duel" className="logo" />
       <h1 className="title">NIM Duel</h1>
       <p className="subtitle">Tap. Stake. Win.</p>
       <p className="tagline">

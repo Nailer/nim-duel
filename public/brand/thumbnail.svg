@@ -1,0 +1,33 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="25%" r="90%">
+      <stop offset="0%" stop-color="#1b2233"/>
+      <stop offset="100%" stop-color="#0b0e14"/>
+    </radialGradient>
+    <linearGradient id="coin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbdb7a"/>
+      <stop offset="100%" stop-color="#f0b429"/>
+    </linearGradient>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff7a6b"/>
+      <stop offset="100%" stop-color="#ff5c5c"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <circle cx="245" cy="315" r="150" fill="url(#coin)"/>
+  <circle cx="245" cy="315" r="150" fill="none" stroke="#16130a" stroke-opacity="0.15" stroke-width="8"/>
+  <circle cx="245" cy="315" r="124" fill="none" stroke="#16130a" stroke-opacity="0.18" stroke-width="5"/>
+  <path
+    d="M 268 205 L 190 320 L 235 320 L 219 400 L 300 280 L 253 280 Z"
+    fill="url(#bolt)"
+    stroke="#16130a"
+    stroke-width="8"
+    stroke-linejoin="round"
+  />
+
+  <text x="450" y="300" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="96" font-weight="800" fill="#f4f6fb" letter-spacing="-2">NIM Duel</text>
+  <text x="452" y="360" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="42" font-weight="700" fill="#f7c948">Tap. Stake. Win.</text>
+  <text x="452" y="410" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="26" fill="#8993a8">Real-time reaction duels on Nimiq Pay</text>
+</svg>
