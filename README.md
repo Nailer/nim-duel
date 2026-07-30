@@ -34,7 +34,7 @@ Open the **Network URL** printed in the terminal inside Nimiq Pay → Mini Apps 
 
 ## Deployment
 
-Deployed at: _add your Vercel URL here_
+Deployed at: https://miniapp-tawny-two.vercel.app
 
 Share inside Nimiq Pay via:
 

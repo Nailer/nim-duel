@@ -17,8 +17,10 @@ export function DuelRoom() {
   const fetchDuel = useCallback(async () => {
     if (!id)
       return
-    const { data } = await supabase.from('duels').select('*').eq('id', id).single()
-    if (data)
+    const { data, error: dbError } = await supabase.from('duels').select('*').eq('id', id).single()
+    if (dbError)
+      setError('Could not load this duel. Check your connection and try refreshing.')
+    else if (data)
       setDuel(data as Duel)
   }, [id])
 
@@ -53,29 +55,35 @@ export function DuelRoom() {
   async function acceptDuel() {
     if (!duel || !myWallet)
       return
-    const { data } = await supabase
+    setError(null)
+    const { data, error: dbError } = await supabase
       .from('duels')
       .update({ opponent_wallet: myWallet })
       .eq('id', duel.id)
       .is('opponent_wallet', null)
       .select()
       .single()
-    if (data)
+    if (dbError)
+      setError('Could not accept the duel. Someone may have already taken it — try refreshing.')
+    else if (data)
       setDuel(data as Duel)
   }
 
   async function submitReaction(reactionMs: number, role: 'creator' | 'opponent') {
     if (!duel)
       return
+    setError(null)
     const field = role === 'creator' ? 'creator_reaction_ms' : 'opponent_reaction_ms'
-    const { data } = await supabase
+    const { data, error: dbError } = await supabase
       .from('duels')
       .update({ [field]: reactionMs })
       .eq('id', duel.id)
       .select()
       .single()
-    if (!data)
+    if (dbError || !data) {
+      setError('Could not save your result. Check your connection and try again.')
       return
+    }
     const updated = data as Duel
     setDuel(updated)
 
@@ -189,6 +197,7 @@ export function DuelRoom() {
         <div className="screen">
           <h1 className="title">Play your shot</h1>
           <p className="tagline">Wait for GO, then tap as fast as you can.</p>
+          {error && <p className="error">{error}</p>}
           <ReactionGame onComplete={ms => submitReaction(ms, 'creator')} />
         </div>
       )
@@ -213,6 +222,7 @@ export function DuelRoom() {
         <div className="screen">
           <h1 className="title">Your turn</h1>
           <p className="tagline">Wait for GO, then tap as fast as you can.</p>
+          {error && <p className="error">{error}</p>}
           <ReactionGame onComplete={ms => submitReaction(ms, 'opponent')} />
         </div>
       )
@@ -239,6 +249,7 @@ export function DuelRoom() {
           {duel.creator_name || 'the challenger'}
           . Fastest reaction wins both stakes.
         </p>
+        {error && <p className="error">{error}</p>}
         <button type="button" className="primary-btn" onClick={acceptDuel}>Accept & Play</button>
       </div>
     )
