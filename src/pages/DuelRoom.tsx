@@ -210,7 +210,7 @@ export function DuelRoom() {
             <button type="button" className="primary-btn" onClick={payLoser} disabled={paying}>
               {paying ? 'Sending…' : `Pay ${duel.stake_amount} NIM to winner`}
             </button>
-            {paying && <p className="footnote">Confirm in your wallet. This may take a few seconds and retry automatically.</p>}
+            {paying && <p className="footnote">Confirm in your wallet. If it's reconnecting to the network (common on Testnet), this can take up to a minute and will retry automatically.</p>}
           </>
         )}
         {iWon && !duel.payout_tx_hash && <p className="footnote">Waiting for the loser to settle up…</p>}

@@ -68,14 +68,17 @@ function sleep(ms: number): Promise<void> {
 // Sending a transaction while the wallet hasn't reached network consensus
 // yet fails with an opaque "syncing your account" error. Wait for
 // consensus first so the payment has a real chance of succeeding.
-async function waitForConsensus(nimiq: Awaited<ReturnType<typeof init>>, timeoutMs = 20_000): Promise<void> {
+//
+// This can take a while, especially on Testnet where peer availability
+// is much sparser than Mainnet -- the timeout is generous on purpose.
+async function waitForConsensus(nimiq: Awaited<ReturnType<typeof init>>, timeoutMs = 45_000): Promise<void> {
   const start = Date.now()
   while (Date.now() - start < timeoutMs) {
     if (await nimiq.isConsensusEstablished())
       return
     await sleep(1000)
   }
-  throw new Error('Your Nimiq wallet is still syncing with the network. Wait a few seconds and try again.')
+  throw new Error('Your Nimiq wallet is still reconnecting to the network. Wait a moment and try again -- this is more common on Testnet, which has fewer peers than Mainnet.')
 }
 
 function isSyncRelated(message: string): boolean {
