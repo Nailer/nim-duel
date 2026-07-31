@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { connectWallet } from '../lib/nimiq'
+import { connectWallet, toErrorMessage } from '../lib/nimiq'
 import { supabase } from '../lib/supabase'
 
 export function Home() {
@@ -38,7 +38,7 @@ export function Home() {
       navigate(`/d/${data.id}`)
     }
     catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
+      setError(toErrorMessage(err))
     }
     finally {
       setConnecting(false)

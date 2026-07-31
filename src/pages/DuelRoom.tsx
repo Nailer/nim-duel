@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ReactionGame } from '../components/ReactionGame'
-import { connectWallet, payNim } from '../lib/nimiq'
+import { connectWallet, payNim, toErrorMessage } from '../lib/nimiq'
 import { Duel, supabase } from '../lib/supabase'
 
 type Role = 'creator' | 'opponent' | 'spectator'
@@ -46,7 +46,7 @@ export function DuelRoom() {
       setMyWallet(wallet)
     }
     catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
+      setError(toErrorMessage(err))
     }
     finally {
       setConnecting(false)
@@ -147,7 +147,7 @@ export function DuelRoom() {
         setDuel(data as Duel)
     }
     catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
+      setError(toErrorMessage(err))
     }
     finally {
       setPaying(false)
