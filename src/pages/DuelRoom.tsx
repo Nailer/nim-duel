@@ -208,8 +208,9 @@ export function DuelRoom() {
           <>
             {error && <p className="error">{error}</p>}
             <button type="button" className="primary-btn" onClick={payLoser} disabled={paying}>
-              {paying ? 'Confirm in wallet…' : `Pay ${duel.stake_amount} NIM to winner`}
+              {paying ? 'Sending…' : `Pay ${duel.stake_amount} NIM to winner`}
             </button>
+            {paying && <p className="footnote">Confirm in your wallet. This may take a few seconds and retry automatically.</p>}
           </>
         )}
         {iWon && !duel.payout_tx_hash && <p className="footnote">Waiting for the loser to settle up…</p>}

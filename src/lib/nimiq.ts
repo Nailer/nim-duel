@@ -61,6 +61,10 @@ export async function connectWallet(): Promise<string> {
   return accounts[0]
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 // Sending a transaction while the wallet hasn't reached network consensus
 // yet fails with an opaque "syncing your account" error. Wait for
 // consensus first so the payment has a real chance of succeeding.
@@ -69,17 +73,51 @@ async function waitForConsensus(nimiq: Awaited<ReturnType<typeof init>>, timeout
   while (Date.now() - start < timeoutMs) {
     if (await nimiq.isConsensusEstablished())
       return
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await sleep(1000)
   }
   throw new Error('Your Nimiq wallet is still syncing with the network. Wait a few seconds and try again.')
+}
+
+function isSyncRelated(message: string): boolean {
+  return /sync/i.test(message)
+}
+
+function isUserRejection(message: string): boolean {
+  return /reject|denied|cancel/i.test(message)
 }
 
 export async function payNim(recipient: string, amountNim: number, memo: string): Promise<string> {
   const nimiq = await getNimiq()
   await waitForConsensus(nimiq)
-  return unwrap(await nimiq.sendBasicTransactionWithData({
-    recipient,
-    value: nimToLuna(amountNim),
-    data: memo,
-  }))
+  // `isConsensusEstablished()` flips true for network consensus slightly
+  // before the wallet's own account balance/UTXO state has finished
+  // settling. Sending immediately on that edge is what produces the
+  // "syncing your account" failure. A short grace period avoids it.
+  await sleep(1500)
+
+  const maxAttempts = 4
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return unwrap(await nimiq.sendBasicTransactionWithData({
+        recipient,
+        value: nimToLuna(amountNim),
+        data: memo,
+      }))
+    }
+    catch (err) {
+      const message = toErrorMessage(err)
+      lastError = err instanceof Error ? err : new Error(message)
+
+      // Don't retry a deliberate user cancellation -- only retry
+      // transient account-sync failures.
+      if (isUserRejection(message) || !isSyncRelated(message) || attempt === maxAttempts) {
+        throw lastError
+      }
+      await sleep(2000 * attempt)
+    }
+  }
+
+  throw lastError ?? new Error('Payment failed. Please try again.')
 }
