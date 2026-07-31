@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ReactionGame } from '../components/ReactionGame'
 import { connectWallet, payNim, toErrorMessage } from '../lib/nimiq'
 import { Duel, supabase } from '../lib/supabase'
@@ -8,6 +8,7 @@ type Role = 'creator' | 'opponent' | 'spectator'
 
 export function DuelRoom() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [duel, setDuel] = useState<Duel | null>(null)
   const [myWallet, setMyWallet] = useState<string | null>(null)
   const [connecting, setConnecting] = useState(false)
@@ -30,9 +31,13 @@ export function DuelRoom() {
   }, [fetchDuel])
 
   // Async duel: poll instead of holding a live socket open, since players
-  // aren't necessarily online at the same time.
+  // aren't necessarily online at the same time. Keep polling through
+  // "resolved" too, until the payout actually lands -- otherwise the
+  // winner's screen never updates once the loser pays.
   useEffect(() => {
-    if (!duel || duel.status === 'resolved' || duel.status === 'expired')
+    if (!duel || duel.status === 'expired')
+      return
+    if (duel.status === 'resolved' && duel.payout_tx_hash)
       return
     const interval = setInterval(fetchDuel, 2500)
     return () => clearInterval(interval)
@@ -215,6 +220,7 @@ export function DuelRoom() {
         )}
         {iWon && !duel.payout_tx_hash && <p className="footnote">Waiting for the loser to settle up…</p>}
         {duel.payout_tx_hash && <p className="footnote">Settled. Tx: {duel.payout_tx_hash.slice(0, 16)}…</p>}
+        <button type="button" className="secondary-btn" onClick={() => navigate('/')}>New Duel</button>
       </div>
     )
   }
@@ -244,6 +250,7 @@ export function DuelRoom() {
         <button type="button" className="primary-btn" onClick={shareLink}>
           {copied ? 'Copied!' : 'Copy / Share Link'}
         </button>
+        <button type="button" className="secondary-btn" onClick={() => navigate('/')}>New Duel</button>
       </div>
     )
   }
@@ -262,6 +269,7 @@ export function DuelRoom() {
     return (
       <div className="screen">
         <p>Reaction recorded. Waiting for the match to resolve…</p>
+        <button type="button" className="secondary-btn" onClick={() => navigate('/')}>New Duel</button>
       </div>
     )
   }
@@ -283,6 +291,7 @@ export function DuelRoom() {
         </p>
         {error && <p className="error">{error}</p>}
         <button type="button" className="primary-btn" onClick={acceptDuel}>Accept & Play</button>
+        <button type="button" className="secondary-btn" onClick={() => navigate('/')}>New Duel</button>
       </div>
     )
   }
@@ -290,6 +299,7 @@ export function DuelRoom() {
   return (
     <div className="screen">
       <p>This duel already has a challenger.</p>
+      <button type="button" className="secondary-btn" onClick={() => navigate('/')}>New Duel</button>
     </div>
   )
 }

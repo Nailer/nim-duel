@@ -105,6 +105,24 @@ body {
   cursor: not-allowed;
 }
 
+.secondary-btn {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 14px;
+  border: 1px solid #2a3247;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.secondary-btn:active {
+  transform: scale(0.97);
+  background: var(--panel);
+}
+
 .footnote {
   color: var(--muted);
   font-size: 0.8rem;
